@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from cash_device.models import Item
+
+
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ("title", "price")
+    search_fields = ("title",)
