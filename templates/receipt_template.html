@@ -1,10 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <title>Кассовый чек</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; margin: 20px; }
+        h1, h2 { text-align: center; margin-bottom: 0; }
+        .header, .footer { text-align: center; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        tfoot td { font-weight: bold; }
+        .date { margin-top: 10px; font-style: italic; }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <h1>{{ company_name }}</h1>
+        <p>Добро пожаловать!</p>
+        <p>ККМ: {{ kkm }}</p>
+        <p>ИНН: {{ inn }}</p>
+    </div>
 
+    <div class="date">
+        Дата: {{ day_time_now }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Наименование товара</th>
+                <th>Количество</th>
+                <th>Стоимость</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.title }}</td>
+                <td>1</td>
+                <td>{{ item.price|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">Итоговая сумма</td>
+                <td>{{ total_price|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Наличные</td>
+                <td>{{ total_price|floatformat:2 }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        <p>Спасибо за покупку!</p>
+    </div>
 </body>
 </html>
