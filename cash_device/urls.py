@@ -15,9 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.urls import path
-from .views import CashMachineView
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = [
-    path('cash_machine', CashMachineView.as_view(), name='cash_machine'),
-]
+from .views import CashMachineViewSet
+
+router = DefaultRouter()
+
+router.register(r"cash_machine", CashMachineViewSet)
+
+urlpatterns = router.urls

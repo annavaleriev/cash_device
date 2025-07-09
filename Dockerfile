@@ -5,7 +5,7 @@ ARG DJANGO_ENV
 ENV DJANGO_ENV=${DJANGO_ENV}
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev && \
+    apt-get install -y --no-install-recommends gcc libpq-dev wkhtmltopdf && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
