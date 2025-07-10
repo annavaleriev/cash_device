@@ -1,24 +1,43 @@
 import io
+from collections import Counter
 from datetime import datetime
 
 import pdfkit
 import qrcode
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.db.models import QuerySet
 from django.template.loader import render_to_string
 
 from cash_device.models import Item, Receipt
 
 
 class PDFReceiptGenerator:
+    """Генератор PDF-чека, который принимает список товаров и генерирует чек в формате PDF."""
+
     def __init__(self, items: list[Item]):
-        self.__items = items
-        self.__total_sum = sum([item.price for item in items])
-        self.__day_time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        self.__file_name = f"receipt_{self.__day_time_now}_{self.__total_sum}.pdf"
+        items_counter = Counter(items)  # Счётчик товаров, чтобы избежать дублирования
+        self.__items = []
+        for item, count in items_counter.items():
+            self.__items.append(
+                {
+                    "title": item.title,  # Название товара
+                    "price": item.price,  # Цена товара
+                    "count": count,  # Количество товара в чеке
+                    "total_price": item.price
+                    * count,  # Общая цена для данного товара (цена * количество)
+                }
+            )
+
+        # self.__items = items  # Список товаров, которые будут в чеке
+        # self.__total_sum = sum([item.price for item in items]) # Сумма всех товаров в чеке
+        self.__total_sum = sum(item["total_price"] for item in self.__items)
+        self.__day_time_now = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S.%f"
+        )  # Текущая дата и время в формате "ГГГГ-ММ-ДД ЧЧ:ММ:СС.микросекунды"
+        self.__file_name = f"receipt_{self.__day_time_now}_{self.__total_sum}.pdf"  # Имя файла чека, которое будет использоваться при сохранении в базу данных
 
     def __generate_html(self):
+        """Генерирует HTML-чек из шаблона receipt_template.html, подставляя туда товары, сумму и дату."""
         return render_to_string(
             "receipt_template.html",
             {
@@ -32,6 +51,7 @@ class PDFReceiptGenerator:
         )
 
     def generate(self):
+        """Генерирует PDF-файл чека из HTML-шаблона и сохраняет его в базу данных."""
         html_information = self.__generate_html()
         pdf = pdfkit.from_string(html_information)
         file = ContentFile(pdf, name=self.__file_name)
@@ -39,23 +59,23 @@ class PDFReceiptGenerator:
 
 
 class QRCodeGenerator:
+    """Генератор QR-кода, который принимает строку и возвращает QR-код в виде байтового потока."""
+
     def __init__(self, str_to_qr_code: str):
         self.__str_to_qr_code = str_to_qr_code
 
     def generate(self):
-        qr = qrcode.QRCode()
-        qr.add_data(self.__str_to_qr_code)
-        f = io.StringIO()
-        return qr.print_ascii(out=f)
-        # return qrcode.make(self.__str_to_qr_code)
+        # Создаём QR-код как изображение (PIL Image)
+        qr_img = qrcode.make(self.__str_to_qr_code)
 
+        # Буфер в памяти, имитирует файл
+        buffer = io.BytesIO()
 
-class CashMachineService:
-    def __init__(self, items: QuerySet[Item]):
-        self.__items = items
+        # Сохраняем картинку в PNG-формате в буфер
+        qr_img.save(buffer, format="PNG")
 
+        # Возвращаемся к началу буфера
+        buffer.seek(0)
 
-    def get_qr_receipt(self) -> ...:
-        ...
-
-
+        # Возвращаем байтовый поток PNG
+        return buffer

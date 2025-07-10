@@ -6,23 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cash_device', '0002_alter_item_price_alter_item_title'),
+        ("cash_device", "0002_alter_item_price_alter_item_title"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Receipt',
+            name="Receipt",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(upload_to='', verbose_name='Чек')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("file", models.FileField(upload_to="", verbose_name="Чек")),
             ],
             options={
-                'verbose_name': 'Чек',
-                'verbose_name_plural': 'Чеки',
+                "verbose_name": "Чек",
+                "verbose_name_plural": "Чеки",
             },
         ),
         migrations.AlterModelOptions(
-            name='item',
-            options={'verbose_name': 'Товар', 'verbose_name_plural': 'Товары'},
+            name="item",
+            options={"verbose_name": "Товар", "verbose_name_plural": "Товары"},
         ),
     ]
